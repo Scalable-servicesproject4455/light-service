@@ -16,7 +16,7 @@ def connect_to_db():
             port=3306,
             user='root',
             password='root',
-            database='temp_db'
+            database='light_db'
         )
  
         if conn.is_connected():
@@ -24,26 +24,26 @@ def connect_to_db():
             cursor = conn.cursor()
  
             cursor.execute("""
-                CREATE TABLE IF NOT EXISTS temp_service (
+                CREATE TABLE IF NOT EXISTS light_service (
                     room_id INT AUTO_INCREMENT PRIMARY KEY,
-                    temperature INT
+                    brightness VARCHAR(255) NOT NULL
                 )
             """)
  
-            cursor.execute("SELECT COUNT(*) FROM temp_service")
+            cursor.execute("SELECT COUNT(*) FROM light_service")
             count = cursor.fetchone()[0]
  
             if count == 0:
                 print("No temperature records found. Inserting initial data...")
-                cursor.executemany("INSERT INTO temp_service (temperature) VALUES (%s)", [
-                    (25,),
-                    (28,),
-                    (30,)
+                cursor.executemany("INSERT INTO light_service (brightness) VALUES (%s)", [
+                    ("light",),
+                    ("dark",),
+                    ("bright",)
                 ])
                 conn.commit()
  
             # Fetch rows
-            cursor.execute("SELECT * FROM temp_service")
+            cursor.execute("SELECT * FROM light_service")
             rows = cursor.fetchall()
  
             return [dict(room_id=row[0], temperature=row[1]) for row in rows]
