@@ -46,7 +46,7 @@ def connect_to_db():
             cursor.execute("SELECT * FROM light_service")
             rows = cursor.fetchall()
  
-            return [dict(room_id=row[0], temperature=row[1]) for row in rows]
+            return [dict(room_id=row[0], brightness=row[1]) for row in rows]
  
     except Error as e:
         print(f"Error: {e}")
