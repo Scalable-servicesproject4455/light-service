@@ -4,6 +4,8 @@ import traceback
 import logging
 import socket  # Import the socket module
 import db.connectToDb
+from service.getLightService import get_all_lights, get_light_by_id, get_lights_by_brightness, get_light_count
+from service.updateService import update_brightness_by_id, bulk_update_brightness
  
 app = Flask(__name__)
  
@@ -83,6 +85,49 @@ def create_data():
     except Exception as e:
         logger.error(f"Error processing request: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
+
+ 
+#get service
+@app.route('/lights', methods=['GET'])
+def get_lights():
+    return jsonify(get_all_lights())
+
+@app.route('/lights/<int:room_id>', methods=['GET'])
+def get_light(room_id):
+    result = get_light_by_id(room_id)
+    if result:
+        return jsonify(result)
+    return jsonify({'message': 'Not Found'}), 404
+
+@app.route('/lights/brightness/<string:level>', methods=['GET'])
+def get_lights_by_level(level):
+    return jsonify(get_lights_by_brightness(level))
+
+@app.route('/lights/count', methods=['GET'])
+def count_lights():
+    return jsonify({'count': get_light_count()})
+
+
+#update service
+@app.route('/lights/<int:room_id>', methods=['PUT'])
+def update_light(room_id):
+    data = request.get_json()
+    if not data or 'brightness' not in data:
+        return jsonify({'error': 'Missing brightness field'}), 400
+
+    updated_rows = update_brightness_by_id(room_id, data['brightness'])
+    if updated_rows == 0:
+        return jsonify({'message': 'No record updated'}), 404
+    return jsonify({'message': f'{updated_rows} record(s) updated'}), 200
+
+@app.route('/lights/bulk-update', methods=['PUT'])
+def bulk_update():
+    data = request.get_json()
+    if not data or 'old_brightness' not in data or 'new_brightness' not in data:
+        return jsonify({'error': 'Missing fields'}), 400
+
+    updated_rows = bulk_update_brightness(data['old_brightness'], data['new_brightness'])
+    return jsonify({'message': f'{updated_rows} record(s) updated'}), 200
  
  
 if __name__ == '__main__':
