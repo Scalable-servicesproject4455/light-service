@@ -73,7 +73,7 @@ def publish_message():
         logger.error(f"An unexpected error occurred: {e}", exc_info=True)
         return jsonify({"status": "error", "message": f"An unexpected error occurred: {e}", "traceback": traceback.format_exc()}), 500
  
-@app.route('/api/createAndGetData', methods=['GET'])
+@app.route('/lights/createAndGetData', methods=['GET'])
 def create_data():
     try:
         rows = db.connectToDb.connect_to_db()
